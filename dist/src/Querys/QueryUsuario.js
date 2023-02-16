@@ -15,29 +15,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateTokenUsuario = exports.getUsuario = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const usuarioQuerys_1 = require("../dao/usuarioQuerys");
-function getUsuario(usuario, contraseña) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const result = yield db_1.default.query(usuarioQuerys_1.queryGetUsuario, [usuario, contraseña]);
-            return result.rows[0];
-        }
-        catch (error) {
-            console.log(error);
-        }
-        yield db_1.default.end();
-    });
-}
+const getUsuario = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const result = yield db_1.default.query(usuarioQuerys_1.queryGetUsuario, [usuario, contrasena]);
+        return result;
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
 exports.getUsuario = getUsuario;
-function updateTokenUsuario(id, token) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            yield db_1.default.query(usuarioQuerys_1.queryUpdateToken, [token, id]);
-            return 1;
-        }
-        catch (error) {
-            console.log(error);
-        }
-        yield db_1.default.end();
-    });
-}
+const updateTokenUsuario = (id, token) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield db_1.default.query(usuarioQuerys_1.queryUpdateToken, [token, id]);
+        return true;
+    }
+    catch (error) {
+        throw new Error(`No se actualizo el token id: ${id}`);
+        return false;
+    }
+});
 exports.updateTokenUsuario = updateTokenUsuario;

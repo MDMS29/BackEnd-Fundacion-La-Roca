@@ -8,18 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.consultarUsuarios = exports.autenticarUsuario = void 0;
-const db_1 = __importDefault(require("../../config/db"));
+exports.perfil = exports.autenticarUsuario = void 0;
 const Usuario_Service_1 = require("../service/Usuario.Service");
 const autenticarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let responseUsuario;
     try {
-        const body = req.body;
-        responseUsuario = yield (0, Usuario_Service_1._serviceAutenticasUsuario)(body);
+        const { usuario, contrasena } = req.body;
+        responseUsuario = yield (0, Usuario_Service_1._serviceAutenticasUsuario)(usuario, contrasena);
     }
     catch (error) {
         console.log(error);
@@ -27,10 +23,14 @@ const autenticarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, functi
     return res.json(responseUsuario);
 });
 exports.autenticarUsuario = autenticarUsuario;
-const consultarUsuarios = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield db_1.default.connect();
-    const result = yield db_1.default.query('SELECT * FROM fundacion.usuarios');
-    console.log(result.rows);
-    yield db_1.default.end();
+// const consultarUsuarios = async () => {
+//     await pool.connect()
+//     const result = await pool.query(consultarUsuarios);
+//     console.log(result.rows) 
+//     await pool.end()
+// }
+const perfil = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // const { usuario } = req
+    // res.json(usuario)
 });
-exports.consultarUsuarios = consultarUsuarios;
+exports.perfil = perfil;

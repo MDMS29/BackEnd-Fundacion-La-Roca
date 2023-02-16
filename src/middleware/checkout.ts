@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { CLIENT_RENEG_LIMIT } from 'tls';
 
 const checkout = async (req, res, next) => {
     let token : any
@@ -9,8 +10,9 @@ const checkout = async (req, res, next) => {
 
             const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
+            console.log(decoded)
             //Busca al usuario por id.                   Eliminar la contraseña de la respuesta recibida
-            req.usuario = await Usuario.findById(decoded.id).select("-password -confirmado -token -createdAt -updatedAt -__v")
+            // req.usuario = await Usuario.findById(decoded.id).select("-password -confirmado -token -createdAt -updatedAt -__v")
 
             return next()
 

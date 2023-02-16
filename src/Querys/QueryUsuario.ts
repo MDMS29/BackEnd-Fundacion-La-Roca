@@ -1,24 +1,33 @@
 import pool from "../../config/db"
-import { queryGetUsuario, queryUpdateToken } from "../dao/usuarioQuerys"
+import { queryGetUsuario, queryUpdateToken, consultarUsuarios } from "../dao/usuarioQuerys"
 
-async function getUsuario(usuario: string, contraseña: string) {
+const getUsuario = async (usuario: string, contrasena: string) => {
     try {
-        const result = await pool.query(queryGetUsuario, [usuario, contraseña])
-        return result.rows[0]
+        const result = await pool.query(queryGetUsuario, [usuario, contrasena]);
+        return result
     } catch (error) {
         console.log(error)
     }
-    await pool.end()
-}
+};
 
-async function updateTokenUsuario(id: number, token: string) {
+ const updateTokenUsuario = async (id: number, token: string) => {
     try {
-        await pool.query(queryUpdateToken, [token, id])
-        return 1
+        await pool.query(queryUpdateToken, [token, id]);
+        return true;
     } catch (error) {
-        console.log(error)
+        throw new Error(`No se actualizo el token id: ${id}`);
+        return false;
     }
-    await pool.end()
-}
+};
+
+// const consultarUsuarios = async () => {
+//     try {
+//         const result = await pool.query(consultarUsuarios);
+//         return result.rows
+//     } catch (error) {
+//         console.log(error)
+//     }
+//     await pool.end()
+// };
 
 export { getUsuario, updateTokenUsuario }

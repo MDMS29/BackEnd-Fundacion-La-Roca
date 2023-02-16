@@ -15,27 +15,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports._serviceAutenticasUsuario = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const QueryUsuario_1 = require("../Querys/QueryUsuario");
-function _serviceAutenticasUsuario(req) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let token;
-        const usuario = req.usuario;
-        const contraseña = req.contraseña;
-        let actualizado;
-        let data = yield (0, QueryUsuario_1.getUsuario)(usuario, contraseña);
-        let id = data.id_usuario;
-        // Generar JWT
-        if (id) {
-            token = jsonwebtoken_1.default.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 });
-            actualizado = yield (0, QueryUsuario_1.updateTokenUsuario)(id, token);
-            if (actualizado === 1) {
-                const objectUsuario = {
-                    id,
-                    nombre: data.usuario,
-                    token: data.token
-                };
-                return objectUsuario;
-            }
+const _serviceAutenticasUsuario = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
+    let userData = yield (0, QueryUsuario_1.getUsuario)(usuario, contrasena);
+    //Datos vacíos
+    if (!userData.rows[0])
+        return { msg: "Usuario no encontrado" };
+    const { id, usuario: user, contrasena: pass } = userData.rows[0];
+    //Validación de contraseña
+    if (contrasena !== pass || pass !== contrasena)
+        return { msg: "¡Usuario o Contraseña son incorrectas!" };
+    // Generar JWT
+    if (id) {
+        const token = jsonwebtoken_1.default.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 });
+        const seActualizo = yield (0, QueryUsuario_1.updateTokenUsuario)(id, token);
+        if (seActualizo) {
+            const objectUsuario = {
+                id,
+                nombre: userData.usuario,
+                token: userData.token
+            };
+            return objectUsuario;
         }
-    });
-}
+    }
+});
 exports._serviceAutenticasUsuario = _serviceAutenticasUsuario;
