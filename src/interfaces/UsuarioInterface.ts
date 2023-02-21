@@ -6,3 +6,11 @@ export interface IUsuario{
     token?: string
     msg?: string
 }
+
+export interface JwtPayload {
+    id: string
+}
+
+export interface BDuser {
+    rows?: object
+}

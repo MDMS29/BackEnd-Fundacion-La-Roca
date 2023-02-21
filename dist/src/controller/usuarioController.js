@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.perfil = exports.autenticarUsuario = void 0;
 const Usuario_Service_1 = require("../service/Usuario.Service");
 const autenticarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
     let responseUsuario;
     try {
         const { usuario, contrasena } = req.body;
@@ -23,14 +24,8 @@ const autenticarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, functi
     return res.json(responseUsuario);
 });
 exports.autenticarUsuario = autenticarUsuario;
-// const consultarUsuarios = async () => {
-//     await pool.connect()
-//     const result = await pool.query(consultarUsuarios);
-//     console.log(result.rows) 
-//     await pool.end()
-// }
 const perfil = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // const { usuario } = req
-    // res.json(usuario)
+    const { usuario } = req;
+    res.json(usuario.rows[0]);
 });
 exports.perfil = perfil;

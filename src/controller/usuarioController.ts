@@ -1,11 +1,14 @@
 import { Response, Request } from "express";
 
-import pool from "../../config/db";
-
 import { _serviceAutenticasUsuario } from "../service/Usuario.Service";
-import { IUsuario } from "../interfaces/UsuarioInterface";
+import { BDuser, IUsuario } from "../interfaces/UsuarioInterface";
+
+interface RequestUsuario extends Request {
+    usuario?: BDuser
+}
 
 const autenticarUsuario = async (req: Request, res: Response) => {
+    console.log(req.body)
     let responseUsuario: Omit<IUsuario, 'contrasena' | 'usuario'>
     try {
         const { usuario, contrasena }: IUsuario = req.body as unknown as IUsuario
@@ -14,20 +17,15 @@ const autenticarUsuario = async (req: Request, res: Response) => {
     } catch (error) {
         console.log(error)
     }
-    
+
     return res.json(responseUsuario)
 }
 
-// const consultarUsuarios = async () => {
-//     await pool.connect()
-//     const result = await pool.query(consultarUsuarios);
-//     console.log(result.rows) 
-//     await pool.end()
-// }
 
-const perfil = async (req: Request, res: Response) => {
-    // const { usuario } = req
-    // res.json(usuario)
+
+const perfil = async (req: RequestUsuario, res: Response) => {
+    const { usuario } = req
+    res.json(usuario.rows[0])
 }
 
 

@@ -17,13 +17,10 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const QueryUsuario_1 = require("../Querys/QueryUsuario");
 const _serviceAutenticasUsuario = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
     let userData = yield (0, QueryUsuario_1.getUsuario)(usuario, contrasena);
-    //Datos vacíos
+    //Validacion de Datos
     if (!userData.rows[0])
-        return { msg: "Usuario no encontrado" };
-    const { id, usuario: user, contrasena: pass } = userData.rows[0];
-    //Validación de contraseña
-    if (contrasena !== pass || pass !== contrasena)
         return { msg: "¡Usuario o Contraseña son incorrectas!" };
+    const { id_usuario: id, usuario: user, contrasena: pass } = userData.rows[0];
     // Generar JWT
     if (id) {
         const token = jsonwebtoken_1.default.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 });
@@ -31,8 +28,8 @@ const _serviceAutenticasUsuario = (usuario, contrasena) => __awaiter(void 0, voi
         if (seActualizo) {
             const objectUsuario = {
                 id,
-                nombre: userData.usuario,
-                token: userData.token
+                nombre: user,
+                token: token
             };
             return objectUsuario;
         }

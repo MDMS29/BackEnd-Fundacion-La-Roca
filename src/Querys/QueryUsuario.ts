@@ -10,7 +10,7 @@ const getUsuario = async (usuario: string, contrasena: string) => {
     }
 };
 
- const updateTokenUsuario = async (id: number, token: string) => {
+const updateTokenUsuario = async (id: number, token: string) => {
     try {
         await pool.query(queryUpdateToken, [token, id]);
         return true;
@@ -19,6 +19,7 @@ const getUsuario = async (usuario: string, contrasena: string) => {
         return false;
     }
 };
+
 
 // const consultarUsuarios = async () => {
 //     try {
