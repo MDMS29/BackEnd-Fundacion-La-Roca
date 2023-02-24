@@ -1,13 +1,46 @@
 import pool from "../../config/db"
-import { queryGetUsuario, queryUpdateToken, consultarUsuarios } from "../dao/usuarioQuerys"
+import { queryGetUsuarioLogin, queryInsertNewUsuario, queryGetNewUser, queryUpdateToken } from "../dao/usuarioQuerys"
 
-const getUsuario = async (usuario: string, contrasena: string) => {
+let bcrypt = require('bcrypt');
+
+const insertUsuario = async (usuario: string, contrasena: string) => {
     try {
-        const result = await pool.query(queryGetUsuario, [usuario, contrasena]);
-        return result
+        const getUser = await pool.query(queryGetNewUser, [usuario])
+        if (getUser.rows[0] != undefined) return 0
+
+        //Hashed de contraseña
+        const salt = await bcrypt.genSalt(10);
+        const contrasenaHash = await bcrypt.hash(contrasena, salt)
+
+        if (contrasenaHash.length == 0) return 1
+    
+        await pool.query(queryInsertNewUsuario, [usuario, contrasenaHash])
+        return 1
     } catch (error) {
-        console.log(error)
+        return new Error(`No se inserto el usuario: ${usuario}`);
     }
+}
+
+const getUsuarioLogin = async (usuario: string, contrasena: string) => {
+    console.log(usuario + " " + contrasena)
+    try {
+        const result = await pool.query(queryGetUsuarioLogin, [usuario, contrasena]);
+
+        if(result.rows[0].includes([])) return false
+
+
+        console.log(result)
+        const check = await bcrypt.compare(contrasena, result.rows[0].contrasena)
+        console.log(check) 
+
+        return
+        // console.log(result)
+        // return result
+
+    } catch (error) {
+        return new Error(`No se consulto el usuario: ${usuario}`);
+    }
+    await pool.end()
 };
 
 const updateTokenUsuario = async (id: number, token: string) => {
@@ -15,20 +48,12 @@ const updateTokenUsuario = async (id: number, token: string) => {
         await pool.query(queryUpdateToken, [token, id]);
         return true;
     } catch (error) {
-        throw new Error(`No se actualizo el token id: ${id}`);
-        return false;
+        return new Error(`No se actualizo el token id: ${id}`);
     }
 };
 
-
-// const consultarUsuarios = async () => {
-//     try {
-//         const result = await pool.query(consultarUsuarios);
-//         return result.rows
-//     } catch (error) {
-//         console.log(error)
-//     }
-//     await pool.end()
-// };
-
-export { getUsuario, updateTokenUsuario }
+export {
+    getUsuarioLogin,
+    updateTokenUsuario,
+    insertUsuario
+}

@@ -1,30 +1,43 @@
 import { IUsuario } from "../interfaces/UsuarioInterface";
 import jwt from "jsonwebtoken";
-import { getUsuario, updateTokenUsuario } from "../Querys/QueryUsuario";
+import { insertUsuario, getUsuarioLogin, updateTokenUsuario } from "../Querys/QueryUsuario";
+
+
 
 const _serviceAutenticasUsuario = async (usuario: string, contrasena: string): Promise<Omit<IUsuario, 'contrasena' | 'usuario'>> => {
-    let userData = await getUsuario(usuario, contrasena)
-    //Validacion de Datos
-    if (!userData.rows[0]) return { msg: "¡Usuario o Contraseña son incorrectas!"}
+    let userData = await getUsuarioLogin(usuario, contrasena)
 
-    const { id_usuario : id, usuario: user, contrasena: pass } = userData.rows[0];
+    //Validación de Datos 
+    if (userData == false) return { msg: "¡Usuario o Contraseña son incorrectas!" }
+    return
 
-    // Generar JWT
-    if (id) {
-        const token = jwt.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 })
-        const seActualizo = await updateTokenUsuario(id, token)
-        
-        if (seActualizo) {
-            const objectUsuario: IUsuario = {
-                id,
-                nombre: user,
-                token: token
-            }
-            return objectUsuario
-        }
-    }
+    // const { id_usuario: id, usuario: user, contrasena: pass } = userData.rows[0];
+
+    // // Generar JWT
+
+    // if (id) {
+    //     const token = jwt.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 })
+    //     const seActualizo = await updateTokenUsuario(id, token)
+
+    //     if (seActualizo) {
+    //         const objectUsuario: IUsuario = {
+    //             id,
+    //             nombre: user,
+    //             token: token
+    //         }
+    //         return objectUsuario
+    //     }
+    // }
+}
+
+const _serviceRegistrarUsuario = async (usuario: string, contrasena: string): Promise<Omit<IUsuario, 'contrasena' | 'usuario'>> => {
+    let userData = await insertUsuario(usuario, contrasena)
+    //Usuario existente
+    if (userData == 0) return { msg: "¡Este Usuario ya existe pruebe con un Usuario distinto!" }
+    //Usuario registrado correctamente
+    if (userData == 1) return { msg: "¡Se ha registrado el Usuario con éxito!" }
 }
 
 export {
-    _serviceAutenticasUsuario
+    _serviceAutenticasUsuario, _serviceRegistrarUsuario
 }

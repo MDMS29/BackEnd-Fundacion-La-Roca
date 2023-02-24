@@ -9,10 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.perfil = exports.autenticarUsuario = void 0;
+exports.registrarUsuario = exports.perfil = exports.autenticarUsuario = void 0;
 const Usuario_Service_1 = require("../service/Usuario.Service");
 const autenticarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
     let responseUsuario;
     try {
         const { usuario, contrasena } = req.body;
@@ -24,6 +23,18 @@ const autenticarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, functi
     return res.json(responseUsuario);
 });
 exports.autenticarUsuario = autenticarUsuario;
+const registrarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let responseUsuario;
+    try {
+        const { usuario, contrasena } = req.body;
+        responseUsuario = yield (0, Usuario_Service_1._serviceRegistrarUsuario)(usuario, contrasena);
+    }
+    catch (error) {
+        console.log(error);
+    }
+    return res.json(responseUsuario);
+});
+exports.registrarUsuario = registrarUsuario;
 const perfil = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { usuario } = req;
     res.json(usuario.rows[0]);

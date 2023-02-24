@@ -12,27 +12,54 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTokenUsuario = exports.getUsuario = void 0;
+exports.insertUsuario = exports.updateTokenUsuario = exports.getUsuarioLogin = void 0;
 const db_1 = __importDefault(require("../../config/db"));
 const usuarioQuerys_1 = require("../dao/usuarioQuerys");
-const getUsuario = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
+let bcrypt = require('bcrypt');
+const insertUsuario = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield db_1.default.query(usuarioQuerys_1.queryGetUsuario, [usuario, contrasena]);
-        return result;
+        const getUser = yield db_1.default.query(usuarioQuerys_1.queryGetNewUser, [usuario]);
+        if (getUser.rows[0] != undefined)
+            return 0;
+        //Hashed de contraseña
+        const salt = yield bcrypt.genSalt(10);
+        const contrasenaHash = yield bcrypt.hash(contrasena, salt);
+        if (contrasenaHash.length == 0)
+            return 1;
+        yield db_1.default.query(usuarioQuerys_1.queryInsertNewUsuario, [usuario, contrasenaHash]);
+        return 1;
     }
     catch (error) {
-        console.log(error);
+        return new Error(`No se inserto el usuario: ${usuario}`);
     }
 });
-exports.getUsuario = getUsuario;
+exports.insertUsuario = insertUsuario;
+const getUsuarioLogin = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(usuario + " " + contrasena);
+    try {
+        const result = yield db_1.default.query(usuarioQuerys_1.queryGetUsuarioLogin, [usuario, contrasena]);
+        if (result.rows[0].includes([]))
+            return false;
+        console.log(result);
+        const check = yield bcrypt.compare(contrasena, result.rows[0].contrasena);
+        console.log(check);
+        return;
+        // console.log(result)
+        // return result
+    }
+    catch (error) {
+        return new Error(`No se consulto el usuario: ${usuario}`);
+    }
+    yield db_1.default.end();
+});
+exports.getUsuarioLogin = getUsuarioLogin;
 const updateTokenUsuario = (id, token) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield db_1.default.query(usuarioQuerys_1.queryUpdateToken, [token, id]);
         return true;
     }
     catch (error) {
-        throw new Error(`No se actualizo el token id: ${id}`);
-        return false;
+        return new Error(`No se actualizo el token id: ${id}`);
     }
 });
 exports.updateTokenUsuario = updateTokenUsuario;

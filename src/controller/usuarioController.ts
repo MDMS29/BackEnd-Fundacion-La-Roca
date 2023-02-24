@@ -1,6 +1,6 @@
 import { Response, Request } from "express";
 
-import { _serviceAutenticasUsuario } from "../service/Usuario.Service";
+import { _serviceAutenticasUsuario, _serviceRegistrarUsuario } from "../service/Usuario.Service";
 import { BDuser, IUsuario } from "../interfaces/UsuarioInterface";
 
 interface RequestUsuario extends Request {
@@ -8,7 +8,6 @@ interface RequestUsuario extends Request {
 }
 
 const autenticarUsuario = async (req: Request, res: Response) => {
-    console.log(req.body)
     let responseUsuario: Omit<IUsuario, 'contrasena' | 'usuario'>
     try {
         const { usuario, contrasena }: IUsuario = req.body as unknown as IUsuario
@@ -21,6 +20,17 @@ const autenticarUsuario = async (req: Request, res: Response) => {
     return res.json(responseUsuario)
 }
 
+const registrarUsuario = async (req: Request, res: Response) => {
+    let responseUsuario: Omit<IUsuario, 'contrasena' | 'usuario'>
+    try {
+        const { usuario, contrasena }: IUsuario = req.body as unknown as IUsuario
+        responseUsuario = await _serviceRegistrarUsuario(usuario, contrasena)
+
+    } catch (error) {
+        console.log(error)
+    }
+    return res.json(responseUsuario)
+}
 
 
 const perfil = async (req: RequestUsuario, res: Response) => {
@@ -30,5 +40,5 @@ const perfil = async (req: RequestUsuario, res: Response) => {
 
 
 export {
-    autenticarUsuario, perfil
+    autenticarUsuario, perfil, registrarUsuario
 }

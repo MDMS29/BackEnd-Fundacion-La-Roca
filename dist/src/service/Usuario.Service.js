@@ -8,31 +8,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports._serviceAutenticasUsuario = void 0;
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+exports._serviceRegistrarUsuario = exports._serviceAutenticasUsuario = void 0;
 const QueryUsuario_1 = require("../Querys/QueryUsuario");
 const _serviceAutenticasUsuario = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
-    let userData = yield (0, QueryUsuario_1.getUsuario)(usuario, contrasena);
-    //Validacion de Datos
-    if (!userData.rows[0])
+    let userData = yield (0, QueryUsuario_1.getUsuarioLogin)(usuario, contrasena);
+    //Validación de Datos 
+    if (userData == false)
         return { msg: "¡Usuario o Contraseña son incorrectas!" };
-    const { id_usuario: id, usuario: user, contrasena: pass } = userData.rows[0];
-    // Generar JWT
-    if (id) {
-        const token = jsonwebtoken_1.default.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 });
-        const seActualizo = yield (0, QueryUsuario_1.updateTokenUsuario)(id, token);
-        if (seActualizo) {
-            const objectUsuario = {
-                id,
-                nombre: user,
-                token: token
-            };
-            return objectUsuario;
-        }
-    }
+    return;
+    // const { id_usuario: id, usuario: user, contrasena: pass } = userData.rows[0];
+    // // Generar JWT
+    // if (id) {
+    //     const token = jwt.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 })
+    //     const seActualizo = await updateTokenUsuario(id, token)
+    //     if (seActualizo) {
+    //         const objectUsuario: IUsuario = {
+    //             id,
+    //             nombre: user,
+    //             token: token
+    //         }
+    //         return objectUsuario
+    //     }
+    // }
 });
 exports._serviceAutenticasUsuario = _serviceAutenticasUsuario;
+const _serviceRegistrarUsuario = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
+    let userData = yield (0, QueryUsuario_1.insertUsuario)(usuario, contrasena);
+    //Usuario existente
+    if (userData == 0)
+        return { msg: "¡Este Usuario ya existe pruebe con un Usuario distinto!" };
+    //Usuario registrado correctamente
+    if (userData == 1)
+        return { msg: "¡Se ha registrado el Usuario con éxito!" };
+});
+exports._serviceRegistrarUsuario = _serviceRegistrarUsuario;
