@@ -1,44 +1,54 @@
-import { IUsuario } from "../interfaces/UsuarioInterface";
+import connection from "../../config/db";
 import jwt from "jsonwebtoken";
+
+import { IUsuario } from "../interfaces/UsuarioInterface";
+
 import { insertUsuario, getUsuarioLogin, updateTokenUsuario } from "../Querys/QueryUsuario";
 
+const _serviceRegistrarUsuario = async (infoUsuario: IUsuario, callback): Promise<any> => {
+    insertUsuario(connection, { infoUsuario }, (result) => {
+        if (result.affectedRows == 1) {
+            callback({ msg: "¡Usuario Registrado!" })
+        }
+        else {
+            callback({ msgEx: "¡Este Usuario ya existe!" })
+        }
+    })
+}
 
+const _serviceAutenticasUsuario = async (infoUsuario: IUsuario, callback): Promise<Omit<IUsuario, 'contrasena' | 'usuario'>> => {
+    const { nIdent, contrasena }: IUsuario = infoUsuario
 
-const _serviceAutenticasUsuario = async (usuario: string, contrasena: string): Promise<Omit<IUsuario, 'contrasena' | 'usuario'>> => {
-    let userData = await getUsuarioLogin(usuario, contrasena)
+    await getUsuarioLogin(connection, { nIdent, contrasena }, async (result) => {
+        if (result) {
+            let id = result.idusuario
+            const token = jwt.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 })
 
-    //Validación de Datos 
-    if (userData == false) return { msg: "¡Usuario o Contraseña son incorrectas!" }
+            let usuario = result
+
+            await updateTokenUsuario(connection, { id, token }, (result) => {
+                if (result.affectedRows == 1) {
+                    callback(
+                        {
+                            id,
+                            nombres : usuario.nombre,
+                            apellidos : usuario.apellido,
+                            tipoDoc : usuario.tipo_ident,
+                            numDoc : usuario.n_identificacion,
+                            tipoUsuario : usuario.tipo_usuario,
+                            token : usuario.token
+                        }
+                    )
+                }
+            })
+        }
+        else {
+            callback({ msgNoEx: "¡Usuario o Contraseña son incorrectas!" })
+        }
+    })
     return
-
-    // const { id_usuario: id, usuario: user, contrasena: pass } = userData.rows[0];
-
-    // // Generar JWT
-
-    // if (id) {
-    //     const token = jwt.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 })
-    //     const seActualizo = await updateTokenUsuario(id, token)
-
-    //     if (seActualizo) {
-    //         const objectUsuario: IUsuario = {
-    //             id,
-    //             nombre: user,
-    //             token: token
-    //         }
-    //         return objectUsuario
-    //     }
-    // }
 }
 
-const _serviceRegistrarUsuario = async (infoUsuario : IUsuario): Promise<any> => {
-    let userData = await insertUsuario(infoUsuario)
-    
-    console.log(userData)
-    //Usuario existente
-    // if (userData == 0) return { msg: "¡Este Usuario ya existe pruebe con un Usuario distinto!" }
-    // //Usuario registrado correctamente
-    // if (userData == 1) return { msg: "¡Se ha registrado el Usuario con éxito!" }
-}
 
 export {
     _serviceAutenticasUsuario, _serviceRegistrarUsuario

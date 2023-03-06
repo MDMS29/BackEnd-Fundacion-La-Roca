@@ -7,30 +7,44 @@ interface RequestUsuario extends Request {
     usuario?: BDuser
 }
 
-const autenticarUsuario = async (req: Request, res: Response) => {
-    let responseUsuario: Omit<IUsuario, 'contrasena' | 'usuario'>
-    try {
-        const { nIdent, contrasena }: IUsuario = req.body as unknown as IUsuario
-        responseUsuario = await _serviceAutenticasUsuario(nIdent, contrasena)
-
-    } catch (error) {
-        console.log(error)
-    }
-
-    return res.json(responseUsuario)
-}
-
 const registrarUsuario = async (req: Request, res: Response) => {
-    let responseUsuario : any
+    let responseUsuario: object
     try {
         const infoUsuario = req.body as unknown as IUsuario
-        responseUsuario = await _serviceRegistrarUsuario(infoUsuario)
+        responseUsuario = await _serviceRegistrarUsuario(infoUsuario, (result) => {
+            if (result.msg) {
+                return res.json({ msg: result.msg })
+            }
+            else if (result.msgEx) {
+                return res.json({ msgEx: result.msgEx })
+            }
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const autenticarUsuario = async (req: Request, res: Response) => {
+    let responseUsuario: object
+    try {
+        const infoUsuario = req.body as unknown as IUsuario
+        responseUsuario = await _serviceAutenticasUsuario(infoUsuario, (result) => {
+            if (result.msgNoEx) {
+                return res.json({ msgNoEx: result.msgNoEx })
+            }
+            if (result.id) {
+                return res.json(result)
+            }
+            // else if(result.id){
+            //     return result
+            // }
+        })
 
     } catch (error) {
         console.log(error)
     }
-    return res.json(responseUsuario)
 }
+
 
 const verUsuarios = async (req: Request, res: Response) => {
 

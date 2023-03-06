@@ -8,37 +8,50 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports._serviceRegistrarUsuario = exports._serviceAutenticasUsuario = void 0;
+const db_1 = __importDefault(require("../../config/db"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const QueryUsuario_1 = require("../Querys/QueryUsuario");
-const _serviceAutenticasUsuario = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
-    let userData = yield (0, QueryUsuario_1.getUsuarioLogin)(usuario, contrasena);
-    //Validación de Datos 
-    if (userData == false)
-        return { msg: "¡Usuario o Contraseña son incorrectas!" };
-    return;
-    // const { id_usuario: id, usuario: user, contrasena: pass } = userData.rows[0];
-    // // Generar JWT
-    // if (id) {
-    //     const token = jwt.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 })
-    //     const seActualizo = await updateTokenUsuario(id, token)
-    //     if (seActualizo) {
-    //         const objectUsuario: IUsuario = {
-    //             id,
-    //             nombre: user,
-    //             token: token
-    //         }
-    //         return objectUsuario
-    //     }
-    // }
-});
-exports._serviceAutenticasUsuario = _serviceAutenticasUsuario;
-const _serviceRegistrarUsuario = (infoUsuario) => __awaiter(void 0, void 0, void 0, function* () {
-    let userData = yield (0, QueryUsuario_1.insertUsuario)(infoUsuario);
-    console.log(userData);
-    //Usuario existente
-    // if (userData == 0) return { msg: "¡Este Usuario ya existe pruebe con un Usuario distinto!" }
-    // //Usuario registrado correctamente
-    // if (userData == 1) return { msg: "¡Se ha registrado el Usuario con éxito!" }
+const _serviceRegistrarUsuario = (infoUsuario, callback) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, QueryUsuario_1.insertUsuario)(db_1.default, { infoUsuario }, (result) => {
+        if (result.affectedRows == 1) {
+            callback({ msg: "¡Usuario Registrado!" });
+        }
+        else {
+            callback({ msgEx: "¡Este Usuario ya existe!" });
+        }
+    });
 });
 exports._serviceRegistrarUsuario = _serviceRegistrarUsuario;
+const _serviceAutenticasUsuario = (infoUsuario, callback) => __awaiter(void 0, void 0, void 0, function* () {
+    const { nIdent, contrasena } = infoUsuario;
+    yield (0, QueryUsuario_1.getUsuarioLogin)(db_1.default, { nIdent, contrasena }, (result) => __awaiter(void 0, void 0, void 0, function* () {
+        if (result) {
+            let id = result.idusuario;
+            const token = jsonwebtoken_1.default.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 });
+            let usuario = result;
+            yield (0, QueryUsuario_1.updateTokenUsuario)(db_1.default, { id, token }, (result) => {
+                if (result.affectedRows == 1) {
+                    callback({
+                        id,
+                        nombres: usuario.nombre,
+                        apellidos: usuario.apellido,
+                        tipoDoc: usuario.tipo_ident,
+                        numDoc: usuario.n_identificacion,
+                        tipoUsuario: usuario.tipo_usuario,
+                        token: usuario.token
+                    });
+                }
+            });
+        }
+        else {
+            callback({ msgNoEx: "¡Usuario o Contraseña son incorrectas!" });
+        }
+    }));
+    return;
+});
+exports._serviceAutenticasUsuario = _serviceAutenticasUsuario;

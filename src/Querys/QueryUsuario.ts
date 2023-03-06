@@ -3,66 +3,53 @@ import { queryGetUsuarioLogin, queryInsertNewUsuario, queryGetNewUser, queryUpda
 import { IUsuario } from "../interfaces/UsuarioInterface";
 
 let bcrypt = require('bcrypt');
+const mysql = require('mysql')
 
-const insertUsuario = async (infoUsuario: IUsuario) => {
-
-    const { nombre, apellido, tipoIdent, nIdent, tipoUsuario, contrasena }: IUsuario = infoUsuario
-    try {
-
-        let res: number
-
-        connection.query(queryGetNewUser, [nIdent], (result) => {
-            if (result) {
-                return 1
-            }
-        });
-
-        console.log(res)
-
-        return
-        //Hashed de contraseña
-        const salt = await bcrypt.genSalt(10);
-        const contrasenaHash = await bcrypt.hash(contrasena, salt)
-
-        if (contrasenaHash.length == 0) return 1
-        let ENU = 'A'
-        await connection.query(queryInsertNewUsuario, [nombre, apellido, tipoIdent, nIdent, tipoUsuario, contrasenaHash, ENU])
-        return 1
-
-    } catch (error) {
-        return new Error(`No se inserto el usuario: ${nIdent}`);
-    }
+const insertUsuario = (connection, data: IUsuario, callback) => {
+    const { nombre, apellido, tipoIdent, nIdent, tipoUsuario, contrasena }: IUsuario = data.infoUsuario
+    let queryGet = mysql.format(queryGetNewUser, [nIdent])
+    connection.query(queryGet, async function (err, result) {
+        if (err) throw err
+        if (result.length == 0) {
+            const salt = await bcrypt.genSalt(10);
+            const contrasenaHash = await bcrypt.hash(contrasena, salt)
+            let query = mysql.format(queryInsertNewUsuario, [nombre, apellido, tipoIdent, nIdent, tipoUsuario, contrasenaHash])
+            connection.query(query, function (err, result) {
+                if (err) throw err
+                callback(result)
+            })
+        }
+        else {
+            callback(0)
+        }
+    })
 }
 
-const getUsuarioLogin = async (usuario: string, contrasena: string) => {
-    console.log(usuario + " " + contrasena)
-    try {
-        const result = await connection.query(queryGetUsuarioLogin, [usuario, contrasena]);
+const getUsuarioLogin = (connection, data: IUsuario, callback) => {
 
-        if (result.rows[0].includes([])) return false
+    const { nIdent, contrasena } = data
 
+    let queryGet = mysql.format(queryGetUsuarioLogin, [nIdent])
 
-        console.log(result)
-        const check = await bcrypt.compare(contrasena, result.rows[0].contrasena)
-        console.log(check)
-
-        return
-        // console.log(result)
-        // return result
-
-    } catch (error) {
-        return new Error(`No se consulto el usuario: ${usuario}`);
-    }
-    await connection.end()
+    connection.query(queryGet, async function (err, result) {
+        if (err) throw err
+        const check = await bcrypt.compare(contrasena, result[0].password)
+        if (check) {
+            callback(result[0])
+        } else {
+            callback(0)
+        }
+    });
 };
 
-const updateTokenUsuario = async (id: number, token: string) => {
-    try {
-        await connection.query(queryUpdateToken, [token, id]);
-        return true;
-    } catch (error) {
-        return new Error(`No se actualizo el token id: ${id}`);
-    }
+const updateTokenUsuario = async (connection, data, callback) => {
+    const { id, token } = data
+    let queryUpdate = mysql.format(queryUpdateToken, [token, id])
+
+    connection.query(queryUpdate, (err, result) => {
+        if(err) throw err
+        callback(result)
+    });
 };
 
 export {

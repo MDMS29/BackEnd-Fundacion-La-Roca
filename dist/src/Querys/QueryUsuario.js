@@ -8,65 +8,60 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.insertUsuario = exports.updateTokenUsuario = exports.getUsuarioLogin = void 0;
-const db_1 = __importDefault(require("../../config/db"));
 const usuarioQuerys_1 = require("../dao/usuarioQuerys");
 let bcrypt = require('bcrypt');
-const insertUsuario = (infoUsuario) => __awaiter(void 0, void 0, void 0, function* () {
-    const { nombre, apellido, tipoIdent, nIdent, tipoUsuario, contrasena } = infoUsuario;
-    try {
-        let res;
-        db_1.default.query(usuarioQuerys_1.queryGetNewUser, [nIdent], (result) => {
-            if (result) {
-                return 1;
+const mysql = require('mysql');
+const insertUsuario = (connection, data, callback) => {
+    const { nombre, apellido, tipoIdent, nIdent, tipoUsuario, contrasena } = data.infoUsuario;
+    let queryGet = mysql.format(usuarioQuerys_1.queryGetNewUser, [nIdent]);
+    connection.query(queryGet, function (err, result) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (err)
+                throw err;
+            if (result.length == 0) {
+                const salt = yield bcrypt.genSalt(10);
+                const contrasenaHash = yield bcrypt.hash(contrasena, salt);
+                let query = mysql.format(usuarioQuerys_1.queryInsertNewUsuario, [nombre, apellido, tipoIdent, nIdent, tipoUsuario, contrasenaHash]);
+                connection.query(query, function (err, result) {
+                    if (err)
+                        throw err;
+                    callback(result);
+                });
+            }
+            else {
+                callback(0);
             }
         });
-        console.log(res);
-        return;
-        //Hashed de contraseña
-        const salt = yield bcrypt.genSalt(10);
-        const contrasenaHash = yield bcrypt.hash(contrasena, salt);
-        if (contrasenaHash.length == 0)
-            return 1;
-        let ENU = 'A';
-        yield db_1.default.query(usuarioQuerys_1.queryInsertNewUsuario, [nombre, apellido, tipoIdent, nIdent, tipoUsuario, contrasenaHash, ENU]);
-        return 1;
-    }
-    catch (error) {
-        return new Error(`No se inserto el usuario: ${nIdent}`);
-    }
-});
+    });
+};
 exports.insertUsuario = insertUsuario;
-const getUsuarioLogin = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(usuario + " " + contrasena);
-    try {
-        const result = yield db_1.default.query(usuarioQuerys_1.queryGetUsuarioLogin, [usuario, contrasena]);
-        if (result.rows[0].includes([]))
-            return false;
-        console.log(result);
-        const check = yield bcrypt.compare(contrasena, result.rows[0].contrasena);
-        console.log(check);
-        return;
-        // console.log(result)
-        // return result
-    }
-    catch (error) {
-        return new Error(`No se consulto el usuario: ${usuario}`);
-    }
-    yield db_1.default.end();
-});
+const getUsuarioLogin = (connection, data, callback) => {
+    const { nIdent, contrasena } = data;
+    let queryGet = mysql.format(usuarioQuerys_1.queryGetUsuarioLogin, [nIdent]);
+    connection.query(queryGet, function (err, result) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (err)
+                throw err;
+            const check = yield bcrypt.compare(contrasena, result[0].password);
+            if (check) {
+                callback(result[0]);
+            }
+            else {
+                callback(0);
+            }
+        });
+    });
+};
 exports.getUsuarioLogin = getUsuarioLogin;
-const updateTokenUsuario = (id, token) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield db_1.default.query(usuarioQuerys_1.queryUpdateToken, [token, id]);
-        return true;
-    }
-    catch (error) {
-        return new Error(`No se actualizo el token id: ${id}`);
-    }
+const updateTokenUsuario = (connection, data, callback) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, token } = data;
+    let queryUpdate = mysql.format(usuarioQuerys_1.queryUpdateToken, [token, id]);
+    connection.query(queryUpdate, (err, result) => {
+        if (err)
+            throw err;
+        callback(result);
+    });
 });
 exports.updateTokenUsuario = updateTokenUsuario;

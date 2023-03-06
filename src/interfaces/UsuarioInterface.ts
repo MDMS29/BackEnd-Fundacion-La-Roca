@@ -8,6 +8,7 @@ export interface IUsuario {
     tipoUsuario?: string
     token?: string
     msg?: string
+    infoUsuario? : object
 }
 
 export interface JwtPayload {
