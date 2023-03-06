@@ -30,12 +30,14 @@ const _serviceAutenticasUsuario = async (usuario: string, contrasena: string): P
     // }
 }
 
-const _serviceRegistrarUsuario = async (usuario: string, contrasena: string): Promise<Omit<IUsuario, 'contrasena' | 'usuario'>> => {
-    let userData = await insertUsuario(usuario, contrasena)
+const _serviceRegistrarUsuario = async (infoUsuario : IUsuario): Promise<any> => {
+    let userData = await insertUsuario(infoUsuario)
+    
+    console.log(userData)
     //Usuario existente
-    if (userData == 0) return { msg: "¡Este Usuario ya existe pruebe con un Usuario distinto!" }
-    //Usuario registrado correctamente
-    if (userData == 1) return { msg: "¡Se ha registrado el Usuario con éxito!" }
+    // if (userData == 0) return { msg: "¡Este Usuario ya existe pruebe con un Usuario distinto!" }
+    // //Usuario registrado correctamente
+    // if (userData == 1) return { msg: "¡Se ha registrado el Usuario con éxito!" }
 }
 
 export {

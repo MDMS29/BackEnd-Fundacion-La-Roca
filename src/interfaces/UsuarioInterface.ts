@@ -1,8 +1,11 @@
-export interface IUsuario{
+export interface IUsuario {
     id?: number
     nombre?: string
-    usuario?: string
+    apellido?: string
+    tipoIdent?: string
+    nIdent?: string
     contrasena?: string
+    tipoUsuario?: string
     token?: string
     msg?: string
 }

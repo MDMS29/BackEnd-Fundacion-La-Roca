@@ -8,14 +8,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registrarUsuario = exports.perfil = exports.autenticarUsuario = void 0;
+exports.verUsuarios = exports.registrarUsuario = exports.perfil = exports.autenticarUsuario = void 0;
 const Usuario_Service_1 = require("../service/Usuario.Service");
+const db_1 = __importDefault(require("../../config/db"));
 const autenticarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let responseUsuario;
     try {
-        const { usuario, contrasena } = req.body;
-        responseUsuario = yield (0, Usuario_Service_1._serviceAutenticasUsuario)(usuario, contrasena);
+        const { nIdent, contrasena } = req.body;
+        responseUsuario = yield (0, Usuario_Service_1._serviceAutenticasUsuario)(nIdent, contrasena);
     }
     catch (error) {
         console.log(error);
@@ -26,8 +30,8 @@ exports.autenticarUsuario = autenticarUsuario;
 const registrarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let responseUsuario;
     try {
-        const { usuario, contrasena } = req.body;
-        responseUsuario = yield (0, Usuario_Service_1._serviceRegistrarUsuario)(usuario, contrasena);
+        const infoUsuario = req.body;
+        responseUsuario = yield (0, Usuario_Service_1._serviceRegistrarUsuario)(infoUsuario);
     }
     catch (error) {
         console.log(error);
@@ -35,6 +39,13 @@ const registrarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, functio
     return res.json(responseUsuario);
 });
 exports.registrarUsuario = registrarUsuario;
+const verUsuarios = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const sql = "SELECT * FROM usuarios WHERE n_identificacion= '1130266003'";
+    db_1.default.query(sql, function (err, result) {
+        console.log(result);
+    });
+});
+exports.verUsuarios = verUsuarios;
 const perfil = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { usuario } = req;
     res.json(usuario.rows[0]);

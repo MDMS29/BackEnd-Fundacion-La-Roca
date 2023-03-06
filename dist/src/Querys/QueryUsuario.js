@@ -16,21 +16,28 @@ exports.insertUsuario = exports.updateTokenUsuario = exports.getUsuarioLogin = v
 const db_1 = __importDefault(require("../../config/db"));
 const usuarioQuerys_1 = require("../dao/usuarioQuerys");
 let bcrypt = require('bcrypt');
-const insertUsuario = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
+const insertUsuario = (infoUsuario) => __awaiter(void 0, void 0, void 0, function* () {
+    const { nombre, apellido, tipoIdent, nIdent, tipoUsuario, contrasena } = infoUsuario;
     try {
-        const getUser = yield db_1.default.query(usuarioQuerys_1.queryGetNewUser, [usuario]);
-        if (getUser.rows[0] != undefined)
-            return 0;
+        let res;
+        db_1.default.query(usuarioQuerys_1.queryGetNewUser, [nIdent], (result) => {
+            if (result) {
+                return 1;
+            }
+        });
+        console.log(res);
+        return;
         //Hashed de contraseña
         const salt = yield bcrypt.genSalt(10);
         const contrasenaHash = yield bcrypt.hash(contrasena, salt);
         if (contrasenaHash.length == 0)
             return 1;
-        yield db_1.default.query(usuarioQuerys_1.queryInsertNewUsuario, [usuario, contrasenaHash]);
+        let ENU = 'A';
+        yield db_1.default.query(usuarioQuerys_1.queryInsertNewUsuario, [nombre, apellido, tipoIdent, nIdent, tipoUsuario, contrasenaHash, ENU]);
         return 1;
     }
     catch (error) {
-        return new Error(`No se inserto el usuario: ${usuario}`);
+        return new Error(`No se inserto el usuario: ${nIdent}`);
     }
 });
 exports.insertUsuario = insertUsuario;

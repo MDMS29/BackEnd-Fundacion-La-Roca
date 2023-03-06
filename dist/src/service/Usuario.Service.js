@@ -33,13 +33,12 @@ const _serviceAutenticasUsuario = (usuario, contrasena) => __awaiter(void 0, voi
     // }
 });
 exports._serviceAutenticasUsuario = _serviceAutenticasUsuario;
-const _serviceRegistrarUsuario = (usuario, contrasena) => __awaiter(void 0, void 0, void 0, function* () {
-    let userData = yield (0, QueryUsuario_1.insertUsuario)(usuario, contrasena);
+const _serviceRegistrarUsuario = (infoUsuario) => __awaiter(void 0, void 0, void 0, function* () {
+    let userData = yield (0, QueryUsuario_1.insertUsuario)(infoUsuario);
+    console.log(userData);
     //Usuario existente
-    if (userData == 0)
-        return { msg: "¡Este Usuario ya existe pruebe con un Usuario distinto!" };
-    //Usuario registrado correctamente
-    if (userData == 1)
-        return { msg: "¡Se ha registrado el Usuario con éxito!" };
+    // if (userData == 0) return { msg: "¡Este Usuario ya existe pruebe con un Usuario distinto!" }
+    // //Usuario registrado correctamente
+    // if (userData == 1) return { msg: "¡Se ha registrado el Usuario con éxito!" }
 });
 exports._serviceRegistrarUsuario = _serviceRegistrarUsuario;
