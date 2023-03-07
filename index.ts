@@ -1,5 +1,6 @@
 import express from 'express';
 import usuarioRoutes from './src/routes/usuarioRoutes'
+import pacienteRoutes from './src/routes/pacientesRoutes'
 
 import cors from 'cors'
 import dotenv from 'dotenv'
@@ -24,6 +25,7 @@ const corsOptions = {
 app.use(cors(corsOptions))
 
 app.use('/api/usuario', usuarioRoutes);
+app.use('/api/paciente', pacienteRoutes);
 
 const PORT = process.env.PORT || 4000
 app.listen(PORT, () => {

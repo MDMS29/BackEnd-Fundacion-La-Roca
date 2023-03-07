@@ -12,14 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verUsuarios = exports.registrarUsuario = exports.perfil = exports.autenticarUsuario = void 0;
+exports.registrarUsuario = exports.perfil = exports.autenticarUsuario = void 0;
 const Usuario_Service_1 = require("../service/Usuario.Service");
-const db_1 = __importDefault(require("../../config/db"));
+const checkout_1 = __importDefault(require("../middleware/checkout"));
 const registrarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let responseUsuario;
     try {
         const infoUsuario = req.body;
-        responseUsuario = yield (0, Usuario_Service_1._serviceRegistrarUsuario)(infoUsuario, (result) => {
+        yield (0, Usuario_Service_1._serviceRegistrarUsuario)(infoUsuario, (result) => {
             if (result.msg) {
                 return res.json({ msg: result.msg });
             }
@@ -34,19 +33,15 @@ const registrarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, functio
 });
 exports.registrarUsuario = registrarUsuario;
 const autenticarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let responseUsuario;
     try {
         const infoUsuario = req.body;
-        responseUsuario = yield (0, Usuario_Service_1._serviceAutenticasUsuario)(infoUsuario, (result) => {
+        yield (0, Usuario_Service_1._serviceAutenticasUsuario)(infoUsuario, (result) => {
             if (result.msgNoEx) {
                 return res.json({ msgNoEx: result.msgNoEx });
             }
             if (result.id) {
                 return res.json(result);
             }
-            // else if(result.id){
-            //     return result
-            // }
         });
     }
     catch (error) {
@@ -54,15 +49,11 @@ const autenticarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.autenticarUsuario = autenticarUsuario;
-const verUsuarios = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const sql = "SELECT * FROM usuarios WHERE n_identificacion= '1130266003'";
-    db_1.default.query(sql, function (err, result) {
-        console.log(result);
-    });
-});
-exports.verUsuarios = verUsuarios;
 const perfil = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { usuario } = req;
-    res.json(usuario.rows[0]);
+    yield (0, checkout_1.default)({ authorization: req.headers.authorization }, (result) => {
+        if (result) {
+            return res.json(result);
+        }
+    });
 });
 exports.perfil = perfil;

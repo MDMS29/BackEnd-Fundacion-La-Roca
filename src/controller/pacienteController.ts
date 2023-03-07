@@ -1,0 +1,7 @@
+const registrarPaciente = () => {
+
+}
+
+export {
+    registrarPaciente
+}

@@ -18,7 +18,6 @@ const _serviceRegistrarUsuario = async (infoUsuario: IUsuario, callback): Promis
 
 const _serviceAutenticasUsuario = async (infoUsuario: IUsuario, callback): Promise<Omit<IUsuario, 'contrasena' | 'usuario'>> => {
     const { nIdent, contrasena }: IUsuario = infoUsuario
-
     await getUsuarioLogin(connection, { nIdent, contrasena }, async (result) => {
         if (result) {
             let id = result.idusuario
@@ -31,12 +30,12 @@ const _serviceAutenticasUsuario = async (infoUsuario: IUsuario, callback): Promi
                     callback(
                         {
                             id,
-                            nombres : usuario.nombre,
-                            apellidos : usuario.apellido,
-                            tipoDoc : usuario.tipo_ident,
-                            numDoc : usuario.n_identificacion,
-                            tipoUsuario : usuario.tipo_usuario,
-                            token : usuario.token
+                            nombres: usuario.nombre,
+                            apellidos: usuario.apellido,
+                            tipoDoc: usuario.tipo_ident,
+                            numDoc: usuario.n_identificacion,
+                            tipoUsuario: usuario.tipo_usuario,
+                            token: usuario.token
                         }
                     )
                 }
@@ -48,6 +47,7 @@ const _serviceAutenticasUsuario = async (infoUsuario: IUsuario, callback): Promi
     })
     return
 }
+
 
 
 export {

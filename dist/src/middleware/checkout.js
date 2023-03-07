@@ -12,27 +12,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const db_1 = __importDefault(require("../../config/db"));
-const checkout = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const usuarioQuerys_1 = require("../dao/usuarioQuerys");
+let mysql = require('mysql');
+const checkout = (req, callback) => __awaiter(void 0, void 0, void 0, function* () {
+    const { authorization } = req;
     let token;
-    //Si se realiza la autorizacion y si hay un token.
-    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
-        try {
-            token = req.headers.authorization.split(' ')[1]; //Se toma el token y se cambia de posicion a 1.
-            const { id } = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-            //Busca al usuario por id.
-            req.usuario = yield db_1.default.query('SELECT * FROM fundacion.usuarios WHERE id_usuario=$1', [id]);
-            // console.log(req)
-            return next();
-        }
-        catch (error) {
-            return res.status(404).json({ message: 'Hubo un error!' });
-        }
+    if (authorization && authorization.startsWith("Bearer")) {
+        token = authorization.split(' ')[1];
+        const { id } = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        let queryGet = mysql.format(usuarioQuerys_1.queryPerilUser, [id]);
+        req.usuario = yield db_1.default.query(queryGet, (err, result) => {
+            if (err)
+                throw err;
+            callback(result[0]);
+        });
     }
     if (!token) {
         const error = new Error('Token no valido!');
-        return res.status(401).json({ message: error.message });
+        callback({ message: error.message });
     }
 });
 exports.default = checkout;

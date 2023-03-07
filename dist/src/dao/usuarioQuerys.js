@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queryUpdateToken = exports.queryGetUsuarioLogin = exports.queryGetNewUser = exports.queryInsertNewUsuario = void 0;
+exports.queryPerilUser = exports.queryUpdateToken = exports.queryGetUsuarioLogin = exports.queryGetNewUser = exports.queryInsertNewUsuario = void 0;
 //Registro nuevo usuario
-exports.queryInsertNewUsuario = `INSERT INTO usuarios(nombre, apellido, tipo_ident, n_identificacion, tipo_usuario, password) VALUES (?, ?, ?, ?, ?, ?);`;
-exports.queryGetNewUser = `SELECT * FROM usuarios WHERE n_identificacion=?`;
+exports.queryInsertNewUsuario = "INSERT INTO usuarios(nombre, apellido, tipo_ident, n_identificacion, tipo_usuario, password) VALUES (?, ?, ?, ?, ?, ?);";
+exports.queryGetNewUser = "SELECT * FROM usuarios WHERE n_identificacion=?";
 //Login
-exports.queryGetUsuarioLogin = `SELECT * FROM usuarios WHERE n_identificacion=? AND estado='A'`;
-exports.queryUpdateToken = `UPDATE usuarios SET token=? WHERE idusuario=?;`;
+exports.queryGetUsuarioLogin = "SELECT * FROM usuarios WHERE n_identificacion=? AND estado='A'";
+exports.queryUpdateToken = "UPDATE usuarios SET token=? WHERE idusuario=?;";
+//Perfil
+exports.queryPerilUser = "SELECT idusuario, nombre, apellido, tipo_ident, n_identificacion, tipo_usuario FROM usuarios WHERE idusuario=? AND estado='A'";
