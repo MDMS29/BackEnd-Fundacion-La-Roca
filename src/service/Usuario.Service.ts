@@ -1,5 +1,6 @@
 import connection from "../../config/db";
 import jwt from "jsonwebtoken";
+import generarJWT from "../helpers/generarJWT";
 
 import { IUsuario } from "../interfaces/UsuarioInterface";
 
@@ -19,12 +20,12 @@ const _serviceRegistrarUsuario = async (infoUsuario: IUsuario, callback): Promis
 const _serviceAutenticasUsuario = async (infoUsuario: IUsuario, callback): Promise<Omit<IUsuario, 'contrasena' | 'usuario'>> => {
     const { nIdent, contrasena }: IUsuario = infoUsuario
     await getUsuarioLogin(connection, { nIdent, contrasena }, async (result) => {
-        if (result) {
+        if (result == 0) {
+            callback({ msgNoEx: "¡Usuario o Contraseña son incorrectas!" })
+        } else {
             let id = result.idusuario
-            const token = jwt.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 })
-
+            const token = generarJWT(id)
             let usuario = result
-
             await updateTokenUsuario(connection, { id, token }, (result) => {
                 if (result.affectedRows == 1) {
                     callback(
@@ -35,14 +36,11 @@ const _serviceAutenticasUsuario = async (infoUsuario: IUsuario, callback): Promi
                             tipoDoc: usuario.tipo_ident,
                             numDoc: usuario.n_identificacion,
                             tipoUsuario: usuario.tipo_usuario,
-                            token: usuario.token
+                            token
                         }
                     )
                 }
             })
-        }
-        else {
-            callback({ msgNoEx: "¡Usuario o Contraseña son incorrectas!" })
         }
     })
     return

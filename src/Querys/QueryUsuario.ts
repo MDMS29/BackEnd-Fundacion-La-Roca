@@ -33,11 +33,15 @@ const getUsuarioLogin = (connection, data: IUsuario, callback) => {
 
     connection.query(queryGet, async function (err, result) {
         if (err) throw err
-        const check = await bcrypt.compare(contrasena, result[0].password)
-        if (check) {
-            callback(result[0])
-        } else {
+        if (result.length == 0) {
             callback(0)
+        } else {
+            const check = await bcrypt.compare(contrasena, result[0].password)
+            if (check) {
+                callback(result[0])
+            } else {
+                callback(0)
+            }
         }
     });
 };
@@ -47,7 +51,7 @@ const updateTokenUsuario = async (connection, data, callback) => {
     let queryUpdate = mysql.format(queryUpdateToken, [token, id])
 
     connection.query(queryUpdate, (err, result) => {
-        if(err) throw err
+        if (err) throw err
         callback(result)
     });
 };

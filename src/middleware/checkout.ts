@@ -19,12 +19,10 @@ const checkout = async (req, callback) => {
     if (authorization && authorization.startsWith("Bearer")) {
 
         token = authorization.split(' ')[1]
-
         const { id } = jwt.verify(token, process.env.JWT_SECRET) as JwtPayload
-
         let queryGet = mysql.format(queryPerilUser, [id])
-        req.usuario = await connection.query(queryGet, (err, result) => {
-            if(err) throw err
+        await connection.query(queryGet, (err, result) => {
+            if (err) throw err
             callback(result[0])
         })
     }

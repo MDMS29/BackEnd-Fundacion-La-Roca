@@ -50,6 +50,7 @@ const autenticarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, functi
 });
 exports.autenticarUsuario = autenticarUsuario;
 const perfil = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    // console.log(req.headers)
     yield (0, checkout_1.default)({ authorization: req.headers.authorization }, (result) => {
         if (result) {
             return res.json(result);

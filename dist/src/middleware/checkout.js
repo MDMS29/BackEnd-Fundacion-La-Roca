@@ -23,7 +23,7 @@ const checkout = (req, callback) => __awaiter(void 0, void 0, void 0, function* 
         token = authorization.split(' ')[1];
         const { id } = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
         let queryGet = mysql.format(usuarioQuerys_1.queryPerilUser, [id]);
-        req.usuario = yield db_1.default.query(queryGet, (err, result) => {
+        yield db_1.default.query(queryGet, (err, result) => {
             if (err)
                 throw err;
             callback(result[0]);

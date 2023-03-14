@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports._serviceRegistrarUsuario = exports._serviceAutenticasUsuario = void 0;
 const db_1 = __importDefault(require("../../config/db"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const generarJWT_1 = __importDefault(require("../helpers/generarJWT"));
 const QueryUsuario_1 = require("../Querys/QueryUsuario");
 const _serviceRegistrarUsuario = (infoUsuario, callback) => __awaiter(void 0, void 0, void 0, function* () {
     (0, QueryUsuario_1.insertUsuario)(db_1.default, { infoUsuario }, (result) => {
@@ -30,9 +30,12 @@ exports._serviceRegistrarUsuario = _serviceRegistrarUsuario;
 const _serviceAutenticasUsuario = (infoUsuario, callback) => __awaiter(void 0, void 0, void 0, function* () {
     const { nIdent, contrasena } = infoUsuario;
     yield (0, QueryUsuario_1.getUsuarioLogin)(db_1.default, { nIdent, contrasena }, (result) => __awaiter(void 0, void 0, void 0, function* () {
-        if (result) {
+        if (result == 0) {
+            callback({ msgNoEx: "¡Usuario o Contraseña son incorrectas!" });
+        }
+        else {
             let id = result.idusuario;
-            const token = jsonwebtoken_1.default.sign({ id }, String(process.env.JWT_SECRET), { expiresIn: 86400 });
+            const token = (0, generarJWT_1.default)(id);
             let usuario = result;
             yield (0, QueryUsuario_1.updateTokenUsuario)(db_1.default, { id, token }, (result) => {
                 if (result.affectedRows == 1) {
@@ -43,13 +46,10 @@ const _serviceAutenticasUsuario = (infoUsuario, callback) => __awaiter(void 0, v
                         tipoDoc: usuario.tipo_ident,
                         numDoc: usuario.n_identificacion,
                         tipoUsuario: usuario.tipo_usuario,
-                        token: usuario.token
+                        token
                     });
                 }
             });
-        }
-        else {
-            callback({ msgNoEx: "¡Usuario o Contraseña son incorrectas!" });
         }
     }));
     return;

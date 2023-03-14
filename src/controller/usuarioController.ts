@@ -41,6 +41,7 @@ const autenticarUsuario = async (req: Request, res: Response) => {
 }
 
 const perfil = async (req: RequestUsuario, res: Response) => {
+    // console.log(req.headers)
     await checkout({ authorization: req.headers.authorization }, (result) => {
         if (result) {
             return res.json(result)

@@ -44,12 +44,17 @@ const getUsuarioLogin = (connection, data, callback) => {
         return __awaiter(this, void 0, void 0, function* () {
             if (err)
                 throw err;
-            const check = yield bcrypt.compare(contrasena, result[0].password);
-            if (check) {
-                callback(result[0]);
+            if (result.length == 0) {
+                callback(0);
             }
             else {
-                callback(0);
+                const check = yield bcrypt.compare(contrasena, result[0].password);
+                if (check) {
+                    callback(result[0]);
+                }
+                else {
+                    callback(0);
+                }
             }
         });
     });
