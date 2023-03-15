@@ -35,7 +35,7 @@ const _serviceAutenticasUsuario = async (infoUsuario: IUsuario, callback): Promi
                             apellidos: usuario.apellido,
                             tipoDoc: usuario.tipo_ident,
                             numDoc: usuario.n_identificacion,
-                            tipoUsuario: usuario.tipo_usuario,
+                            tipo_usuario: usuario.tipo_usuario,
                             token
                         }
                     )

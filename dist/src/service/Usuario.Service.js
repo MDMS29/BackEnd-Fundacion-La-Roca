@@ -45,7 +45,7 @@ const _serviceAutenticasUsuario = (infoUsuario, callback) => __awaiter(void 0, v
                         apellidos: usuario.apellido,
                         tipoDoc: usuario.tipo_ident,
                         numDoc: usuario.n_identificacion,
-                        tipoUsuario: usuario.tipo_usuario,
+                        tipo_usuario: usuario.tipo_usuario,
                         token
                     });
                 }

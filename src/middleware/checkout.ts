@@ -1,6 +1,6 @@
 import connection from '../../config/db';
 import { JwtPayload, BDuser } from '../interfaces/UsuarioInterface';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { queryPerilUser } from '../dao/usuarioQuerys';
 

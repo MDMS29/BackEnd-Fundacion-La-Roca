@@ -1,7 +1,6 @@
 import { Response, Request } from "express";
 import { _serviceAutenticasUsuario, _serviceRegistrarUsuario } from "../service/Usuario.Service";
 import { BDuser, IUsuario } from "../interfaces/UsuarioInterface";
-import connection from "../../config/db";
 import checkout from "../middleware/checkout";
 
 interface RequestUsuario extends Request {
